@@ -1,0 +1,58 @@
+#include <Adafruit_CircuitPlayground.h>
+const int PRESSURE_PIN = A1;
+const int LED_PIN1     = A2;
+const int LED_PIN2     = A3;
+const int LED_PIN3     = A5;
+const int LED_PIN4     = A4;
+const int LIGHT_THRESHOLD = 100; 
+
+void setup() {
+  Serial.begin(9600);
+  CircuitPlayground.begin();
+  pinMode(LED_PIN1, OUTPUT);
+  pinMode(LED_PIN2, OUTPUT);
+  pinMode(LED_PIN3, OUTPUT);
+  pinMode(LED_PIN4, OUTPUT);
+}
+void setExternalLEDs(bool l1, bool l2, bool l3, bool l4) {
+  digitalWrite(LED_PIN1, l1 ? HIGH : LOW);
+  digitalWrite(LED_PIN2, l2 ? HIGH : LOW);
+  digitalWrite(LED_PIN3, l3 ? HIGH : LOW);
+  digitalWrite(LED_PIN4, l4 ? HIGH : LOW);
+}
+void setPink() {
+  for (int i = 0; i < 10; i++) {
+    CircuitPlayground.setPixelColor(i, 255, 20, 147); 
+  }
+}
+void loop() {
+  int lightValue    = CircuitPlayground.lightSensor();
+  int pressureValue = analogRead(PRESSURE_PIN);
+
+  Serial.print("Light: ");
+  Serial.print(lightValue);
+  Serial.print(" | Pressure: ");
+  Serial.println(pressureValue);
+  if (lightValue < LIGHT_THRESHOLD) {
+
+    setPink();
+    setExternalLEDs(true, true, true, true);
+
+  } else { CircuitPlayground.clearPixels();
+
+    if (pressureValue < 200) {
+      setExternalLEDs(false, false, false, false);
+
+    } else if (pressureValue < 600) {
+      setExternalLEDs(true, false, false, false);
+
+    } else if (pressureValue < 800) {
+      setExternalLEDs(true, true, false, false);
+
+    } else {
+      setExternalLEDs(true, true, true, true);
+    }
+  }
+
+  delay(100);
+}
